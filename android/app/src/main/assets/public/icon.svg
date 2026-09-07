@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="50%" stop-color="#4338CA" />
+      <stop offset="100%" stop-color="#312E81" />
+    </linearGradient>
+    <linearGradient id="gemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+
+  <!-- Inner subtle border -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="none" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="4" />
+
+  <!-- Central Graphic Group -->
+  <g filter="url(#glow)">
+    <!-- Open Book / Wings Base -->
+    <path d="M256 360 C220 330 140 330 100 350 L100 200 C140 180 220 180 256 210 C292 180 372 180 412 200 L412 350 C372 330 292 330 256 360 Z" fill="#FFFFFF" fill-opacity="0.95" />
+    
+    <!-- Spine divider -->
+    <line x1="256" y1="210" x2="256" y2="360" stroke="#4F46E5" stroke-width="4" stroke-linecap="round" />
+
+    <!-- Left Language symbol: 'A' -->
+    <text x="175" y="285" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="64" fill="#4F46E5" text-anchor="middle">A</text>
+    
+    <!-- Right Language symbol: 'ف' or 'ح' -->
+    <text x="337" y="290" font-family="'Vazirmatn', system-ui, sans-serif" font-weight="900" font-size="60" fill="#10B981" text-anchor="middle">ح</text>
+
+    <!-- Star / Sparkle of Intelligence on Top -->
+    <path d="M256 100 L268 140 L308 152 L268 164 L256 204 L244 164 L204 152 L244 140 Z" fill="url(#accentGrad)" />
+    
+    <!-- Small sparkles -->
+    <circle cx="160" cy="130" r="10" fill="#FBBF24" opacity="0.9"/>
+    <circle cx="355" cy="130" r="8" fill="#34D399" opacity="0.9"/>
+  </g>
+
+  <!-- App Title Banner at bottom inside squircle -->
+  <text x="256" y="420" font-family="'Vazirmatn', system-ui, sans-serif" font-weight="800" font-size="34" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">
+    حسین و فاطمه
+  </text>
+  <text x="256" y="455" font-family="'Vazirmatn', system-ui, sans-serif" font-weight="500" font-size="20" fill="#A5B4FC" text-anchor="middle">
+    آموزش هوشمند زبان
+  </text>
+</svg>

@@ -1,0 +1,97 @@
+# Production Deployment Architecture (Independent from local Dev Compose)
+# High Availability, Scalability, Observability, and Secret Management
+version: '3.8'
+
+services:
+  # Ingress Reverse Proxy & TLS Termination
+  ingress:
+    image: nginx:alpine
+    container_name: hossein_fateme_ingress
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/nginx/production.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - backend
+
+  # Primary API Service
+  backend:
+    image: ${REGISTRY_URL:-registry.example.com}/hossein-fateme/api:${IMAGE_TAG:-latest}
+    restart: always
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}?ssl=require
+      - REDIS_URL=rediss://:${REDIS_PASSWORD}@${REDIS_HOST}:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - PROMETHEUS_MULTIPROC_DIR=/tmp/metrics
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/v1/admin/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # Background Queue Worker (Celery)
+  celery_worker:
+    image: ${REGISTRY_URL:-registry.example.com}/hossein-fateme/api:${IMAGE_TAG:-latest}
+    command: celery -A app.tasks.worker.celery_app worker --loglevel=info --concurrency=4 -Q srs_queue,notifications,ai_batch
+    restart: always
+    deploy:
+      replicas: 2
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}?ssl=require
+      - REDIS_URL=rediss://:${REDIS_PASSWORD}@${REDIS_HOST}:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+
+  # Scheduled Tasks & Periodic Spaced Repetition Reminders
+  celery_beat:
+    image: ${REGISTRY_URL:-registry.example.com}/hossein-fateme/api:${IMAGE_TAG:-latest}
+    command: celery -A app.tasks.worker.celery_app beat --loglevel=info
+    restart: always
+    deploy:
+      replicas: 1
+    environment:
+      - ENVIRONMENT=production
+      - REDIS_URL=rediss://:${REDIS_PASSWORD}@${REDIS_HOST}:6379/0
+
+  # Monitoring: Prometheus Metrics Scraper
+  prometheus:
+    image: prom/prometheus:v2.49.0
+    container_name: hossein_fateme_prometheus
+    restart: always
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+
+  # Monitoring: Grafana Visual Dashboards
+  grafana:
+    image: grafana/grafana:10.3.1
+    container_name: hossein_fateme_grafana
+    restart: always
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-AdminSecure2026!}
+
+volumes:
+  prometheus_data:
+  grafana_data:

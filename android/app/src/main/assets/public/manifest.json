@@ -1,0 +1,70 @@
+{
+  "name": "حسین و فاطمه - آموزش زبان هوشمند",
+  "short_name": "حسین و فاطمه",
+  "description": "اپلیکیشن کامل و فوق‌هوشمند آموزش زبان انگلیسی، آلمانی و فرانسوی به همراه معلم هوش مصنوعی و آزمون‌های بین‌المللی",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "dir": "rtl",
+  "lang": "fa-IR",
+  "categories": ["education", "language", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/app-logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "مسیر یادگیری ۵۲ هفته‌ای",
+      "short_name": "دروس",
+      "description": "مشاهده درخت مهارت و ادامه درس روزانه",
+      "url": "/?tab=learn",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "معلم صوتی هوش مصنوعی",
+      "short_name": "معلم AI",
+      "description": "مکالمه زنده و رفع اشکال با معلم حسین و فاطمه",
+      "url": "/?tab=ai-tutor",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "آزمون‌های بین‌المللی و لیگ",
+      "short_name": "آزمون‌ها",
+      "description": "شبیه‌ساز تافل، آیلتس، گوته و جدول رده‌بندی",
+      "url": "/?tab=exams",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "جعبه لایتنر هوشمند",
+      "short_name": "فلش‌کارت",
+      "description": "مرور واژگان با سیستم تکرار فاصله‌دار",
+      "url": "/?tab=flashcards",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    }
+  ]
+}

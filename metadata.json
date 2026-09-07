@@ -1,0 +1,6 @@
+{
+  "name": "حسین و فاطمه - آموزش زبان هوشمند",
+  "description": "اپلیکیشن پیشرفته آموزش زبان با ساختار درختی ۵۲ هفته‌ای (A1 تا C2)، ظرفیت واقعی و پویا بر اساس ثبت‌نام زبان‌آموزان در پایگاه داده محلی، آزمون‌های چندمرحله‌ای و دستیار صوتی هوش مصنوعی",
+  "requestFramePermissions": ["microphone", "camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

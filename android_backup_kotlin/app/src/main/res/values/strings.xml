@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LinguaPulse</string>
+    <string name="slogan">Smart AI Language Learning</string>
+    <string name="tab_learning_path">Learning Path</string>
+    <string name="tab_flashcards">SRS Flashcards</string>
+    <string name="tab_mock_exam">Mock Exam</string>
+    <string name="tab_ai_tutor">AI Tutor</string>
+    <string name="tab_profile">Profile</string>
+    <string name="action_login">Login</string>
+    <string name="action_register">Create Account</string>
+    <string name="action_retry">Retry</string>
+    <string name="network_error">Network connection error. Offline mode active.</string>
+    <string name="due_reviews">Due for Review</string>
+</resources>

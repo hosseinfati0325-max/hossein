@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">لینگوآپالس</string>
+    <string name="slogan">سامانه هوشمند یادگیری زبان و آمادگی آزمون</string>
+    <string name="tab_learning_path">مسیر یادگیری</string>
+    <string name="tab_flashcards">جعبه لایتنر (SRS)</string>
+    <string name="tab_mock_exam">آزمون شبیه‌ساز</string>
+    <string name="tab_ai_tutor">استاد هوشمند</string>
+    <string name="tab_profile">پروفایل کاربری</string>
+    <string name="action_login">ورود به حساب</string>
+    <string name="action_register">ثبت‌نام حساب جدید</string>
+    <string name="action_retry">تلاش مجدد</string>
+    <string name="network_error">خطای اتصال به شبکه. حالت آفلاین فعال است.</string>
+    <string name="due_reviews">کارت‌های آماده مرور</string>
+</resources>
