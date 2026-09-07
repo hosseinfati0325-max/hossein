@@ -45,8 +45,10 @@ class OfflineSyncWorker(
         private const val SYNC_WORK_NAME = "PeriodicDataSyncWork"
 
         fun schedulePeriodicSync(context: Context) {
+            // Configured constraints: only sync when device is charging and connected to unmetered network (Wi-Fi)
             val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiredNetworkType(NetworkType.UNMETERED) // Wi-Fi / Unmetered connection
+                .setRequiresCharging(true)                    // Device is charging
                 .setRequiresBatteryNotLow(true)
                 .build()
 

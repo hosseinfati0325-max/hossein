@@ -6,6 +6,7 @@ import {
   ExamResultRecord,
   UserProgress,
 } from '../types';
+import { storageService } from './storageService';
 
 const SYNC_QUEUE_KEY = 'hossein_fatemeh_sync_queue_v1';
 const SYNC_LOGS_KEY = 'hossein_fatemeh_sync_logs_v1';
@@ -363,6 +364,11 @@ class SyncService {
 
       const data = await response.json();
       const processedIds: string[] = data.processedItemIds || [];
+
+      // If server returned updated remote user snapshot, merge with conflict resolution
+      if (data.serverUserSnapshot && userSnapshot) {
+        storageService.mergeProgressWithConflictResolution(userSnapshot, data.serverUserSnapshot);
+      }
 
       // Remove successfully processed items from queue
       const remainingQueue = queue.filter((item) => !processedIds.includes(item.id));

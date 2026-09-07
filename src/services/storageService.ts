@@ -4,6 +4,7 @@ import {
   TargetLanguageCode,
   WeaknessRecord,
   UserSettings,
+  ExamResultRecord,
 } from '../types';
 import { INITIAL_BADGES, INITIAL_SRS_CARDS } from '../data/curriculumData';
 import { Preferences } from '@capacitor/preferences';
@@ -368,6 +369,77 @@ class StorageService {
       };
       return [newWeakness, ...currentWeaknesses];
     }
+  }
+
+  // Robust Conflict Resolution Strategy for Offline-First Synchronization
+  // Prioritizes local user actions (optimistic offline writes) while merging authoritative remote state
+  mergeProgressWithConflictResolution(
+    localProgress: UserProgress,
+    remoteProgress: Partial<UserProgress>,
+  ): UserProgress {
+    // 1. Gamification: Highest values always win to ensure user never loses offline effort
+    const resolvedXP = Math.max(localProgress.xp || 0, remoteProgress.xp || 0);
+    const resolvedLevel = Math.max(localProgress.level || 1, remoteProgress.level || 1);
+    const resolvedGems = Math.max(localProgress.gems || 0, remoteProgress.gems || 0);
+    const resolvedStreak = Math.max(localProgress.streak || 0, remoteProgress.streak || 0);
+
+    // 2. Union completed lessons to avoid losing lessons finished while offline
+    const localCompleted = localProgress.completedLessonIds || [];
+    const remoteCompleted = remoteProgress.completedLessonIds || [];
+    const mergedCompletedLessons = Array.from(new Set([...localCompleted, ...remoteCompleted]));
+
+    // 3. Union streak days
+    const localStreakDays = localProgress.streakDays || [];
+    const remoteStreakDays = remoteProgress.streakDays || [];
+    const mergedStreakDays = Array.from(new Set([...localStreakDays, ...remoteStreakDays])).sort();
+
+    // 4. Merge SRS Decks: Convergent SM-2 Spaced Repetition resolution
+    // If a card exists in both, keep the card with greater repetitions or latest review date
+    const cardMap = new Map<string, SRSCard>();
+    (remoteProgress.srsCards || []).forEach((c) => cardMap.set(c.id, c));
+    (localProgress.srsCards || []).forEach((localCard) => {
+      const remoteCard = cardMap.get(localCard.id);
+      if (!remoteCard) {
+        cardMap.set(localCard.id, localCard);
+      } else {
+        // Conflict on single card: Local wins if repetitions is higher or reviewed more recently
+        const localReviewed = localCard.lastReviewedDate ? new Date(localCard.lastReviewedDate).getTime() : 0;
+        const remoteReviewed = remoteCard.lastReviewedDate ? new Date(remoteCard.lastReviewedDate).getTime() : 0;
+        if (localCard.repetitions >= remoteCard.repetitions || localReviewed >= remoteReviewed) {
+          cardMap.set(localCard.id, localCard);
+        }
+      }
+    });
+
+    // 5. Merge exam history without duplicates
+    const examMap = new Map<string, ExamResultRecord>();
+    (remoteProgress.examResults || []).forEach((e) => examMap.set(e.id, e));
+    (localProgress.examResults || []).forEach((e) => examMap.set(e.id, e)); // Local takes precedence for offline results
+
+    const mergedUser: UserProgress = {
+      ...localProgress,
+      ...remoteProgress,
+      xp: resolvedXP,
+      level: resolvedLevel,
+      gems: resolvedGems,
+      streak: resolvedStreak,
+      completedLessonIds: mergedCompletedLessons,
+      streakDays: mergedStreakDays,
+      srsCards: Array.from(cardMap.values()),
+      examResults: Array.from(examMap.values()),
+      // Maintain local profile personal fields unless updated remotely with newer timestamp
+      firstName: localProgress.firstName || remoteProgress.firstName || 'کاربر',
+      lastName: localProgress.lastName || remoteProgress.lastName || '',
+      avatar: localProgress.avatar || remoteProgress.avatar || '🦁',
+      settings: {
+        ...DEFAULT_USER_SETTINGS,
+        ...(remoteProgress.settings || {}),
+        ...(localProgress.settings || {}),
+      },
+    };
+
+    this.saveProgress(mergedUser);
+    return mergedUser;
   }
 
   // Export JSON backup

@@ -407,6 +407,7 @@ app.post('/api/sync/push', (req, res) => {
       success: true,
       processedItemIds: processedIds,
       serverTime: timestamp,
+      serverUserSnapshot: serverDatabase.userProfiles.get(userId) || null,
       message: 'Background synchronization completed successfully.',
     });
   } catch (error: any) {

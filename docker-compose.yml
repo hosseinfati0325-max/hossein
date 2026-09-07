@@ -1,82 +1,91 @@
+version: '3.8'
+
 services:
-  # PostgreSQL Database
+  # PostgreSQL Database (Version 16 Alpine)
   postgres:
     image: postgres:16-alpine
-    container_name: linguapulse_postgres
+    container_name: hossein_fateme_postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-linguapulse}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_secure_pass_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-hossein_fateme}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d linguapulse"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-hossein_fateme}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Redis Cache & Broker
+  # Redis In-Memory Cache & Token Blacklist
   redis:
     image: redis:7-alpine
-    container_name: linguapulse_redis
+    container_name: hossein_fateme_redis
     restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD:-redis_secure_pass_2026}"
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_secure_pass_2026}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # FastAPI Backend API
+  # FastAPI Backend API Service
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: linguapulse_backend
+    container_name: hossein_fateme_backend
     restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
-      - ENVIRONMENT=production
-      - DEBUG=false
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-linguapulse}
-      - DATABASE_SYNC_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-linguapulse}
-      - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=${SECRET_KEY:-linguapulse-production-insecure-secret-key-change-me}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - DEBUG=${DEBUG:-false}
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres_secure_pass_2026}@postgres:5432/${POSTGRES_DB:-hossein_fateme}
+      - DATABASE_SYNC_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres_secure_pass_2026}@postgres:5432/${POSTGRES_DB:-hossein_fateme}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_secure_pass_2026}@redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-hossein-fateme-super-secret-key-salt-98213}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - OPENAI_COMPATIBLE_API_KEY=${OPENAI_COMPATIBLE_API_KEY}
-      - OPENAI_COMPATIBLE_BASE_URL=${OPENAI_COMPATIBLE_BASE_URL}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
 
-  # Celery Background Worker
+  # Celery Asynchronous Queue Worker
   celery_worker:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: linguapulse_celery_worker
+    container_name: hossein_fateme_celery_worker
     restart: unless-stopped
-    command: ["celery", "-A", "app.tasks.celery_app.celery_app", "worker", "--loglevel=info"]
+    command: ["celery", "-A", "app.tasks.celery_app.celery_app", "worker", "--loglevel=info", "-c", "4"]
     environment:
-      - REDIS_URL=redis://redis:6379/0
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-linguapulse}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres_secure_pass_2026}@postgres:5432/${POSTGRES_DB:-hossein_fateme}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_secure_pass_2026}@redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-hossein-fateme-super-secret-key-salt-98213}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
 
 volumes:
   postgres_data:
